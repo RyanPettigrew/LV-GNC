@@ -2,11 +2,10 @@ function [t, stateOut] = rocket_6dof(tspan, state0, params)
 % ROCKET_6DOF
     options = odeset('RelTol',1e-7,'AbsTol',1e-7);
     [t, stateOut] = ode45(@(t, state) eom6dof(t, state, params), tspan, state0, options);
-
 end
 
 % ========================================================================
-% EOM6DOF: 6DOF equations of motion
+% 6DOF equations of motion
 % ========================================================================
 function dstate = eom6dof(t, state, params)
     % Unpack state vector
@@ -36,24 +35,50 @@ function dstate = eom6dof(t, state, params)
     % -------------------------------------------------
     %  environment
     % -------------------------------------------------
-    g = params.env.gravity;
+    g = params.env.g;
     % implement gravity model later: rho = atmosphereModel(x,y,z,params)
+    
+    windBody = [0; 0; 0];  % default is no wind
+    % turn on wind
+    if isfield(params.sim, 'enableWind') && params.sim.enableWind
+        windBody = [10; 0; 0];  
+        % or add random disturbance wind model
+    end
 
     % -------------------------------------------------
-    %  thrust
+    %  thrustsimFlags.enableEngineModel 
     % -------------------------------------------------
-    T = computeThrust(t, m, params);
-
+    T = params.engine.thrustSea;
+    if isfield(params.sim, 'enableEngineModel') && params.sim.enableEngineModel
+        T = computeThrust(t, m, params);
+    end
     % -------------------------------------------------
     % Aerodynamic forces & moments
     % -------------------------------------------------
-    [F_aero, M_aero] = computeAero([vx; vy; vz], [p; q; r], phi, theta, psi, params);
+    M_aero = [0; 0; 0];
+    F_aero = [0; 0; 0];
+    if isfield(params.sim, 'enableAero') && params.sim.enableAero
+        [F_aero, M_aero] = computeAero([vx; vy; vz], [p; q; r], phi, theta, psi, params);
+    end
+    % -------------------------------------------------
+    % Slosh
+    % -------------------------------------------------
+    M_slosh = [0; 0; 0];
+    F_slosh = [0; 0; 0];
+    if isfield(params.sim, 'enableSlosh') && params.sim.enableSlosh
+        [F_slosh, M_slosh] = computeSloshMoment(t, state, params);
+    end
 
+    
     % -------------------------------------------------
     % Compute mass flow
     % -------------------------------------------------
-    mdot = computeMassFlow(t, m, params);
-
+    mdot = 0;
+    % assumes constant mass unless mass flow rate is turned on 
+    if isfield(params.sim, 'enableMassFlow') && params.sim.enableMassFlow
+        mdot = computeMassFlow(t, m, params);
+    end
+    
     % -------------------------------------------------
     % Compute rotation matrices
     % -------------------------------------------------
@@ -64,7 +89,7 @@ function dstate = eom6dof(t, state, params)
     % Translational eqs (inertial)
     % -------------------------------------------------
     % Body forces in inertial frame:
-    Fbody_b    = [T; 0; 0] + F_aero;     % net body-axis force
+    Fbody_b    = [T; 0; 0] + F_aero + F_slosh;    % net body-axis force
     Fbody_i    = Cbi * Fbody_b;         % transform to inertial frame
 
     % Gravity in inertial frame
@@ -82,7 +107,6 @@ function dstate = eom6dof(t, state, params)
     I   = diag([Ixx, Iyy, Izz]);
 
     % Sum moments in body frame
-    M_slosh = [0;0;0];
     Mtotal_b = M_aero + M_slosh;  % placeholder
 
     % Euler's rotational EOM in body frame:
@@ -138,6 +162,7 @@ function dstate = eom6dof(t, state, params)
     dstate(13) = dm; % mass is the "13th state vector" but not controlled
 end
 
+%% FUNCTIONS 
 % ========================================================================
 % THRUST
 % ========================================================================
@@ -148,7 +173,25 @@ function Thrust = computeThrust(time, params)
         Thrust = params.engine.thrustVac;
     end
 end
-
+% ========================================================================
+% MASS FLOW
+% ========================================================================
+function mdot = computeMassFlow(~, m, params)
+    % If mass above dry mass, burn at a fixed rate
+    if m > params.mass.empty
+        mdot = 50;  % [kg/s]
+    else
+        mdot = 0;
+    end
+end
+% ========================================================================
+% SLOSH MOMENT
+% ========================================================================
+function [F_slosh, M_slosh] = computeSlosh(~, state, params)
+    % specify slosh model type
+    F_slosh = [0;0;0];
+    M_slosh = [0;0;0];
+end
 % ========================================================================
 % AERODYNAMICS FORCES & MOMENTS
 % ========================================================================
@@ -162,8 +205,8 @@ end
 % ========================================================================
 function C = euler2dcm(phi, theta, psi)
     % DCM from body to inertial using Z-Y-X or 3-2-1
-    cphi = cos(phi);   s
-    phi = sin(phi);
+    cphi = cos(phi);
+    sphi = sin(phi);
     cthe = cos(theta); 
     sthe = sin(theta);
     cpsi = cos(psi);

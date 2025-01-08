@@ -22,6 +22,9 @@ function params = parameters()
     params.mass.empty       = 12000;   % [kg] rocket dry mass
     params.mass.propellant  = 30000;   % [kg] nominal propellant mass
     params.mass.payload     = 1000;    % [kg] payload mass capacity
+    params.mass.oxFlowRate = 100;      % [kg/sec]
+    params.mass.oxFlowRate = 100;      % [kg/sec]
+    params.mass.propellant = 200;      % [kg]
 
     % -----------------------
     % STRCUTURE GEOMETRY
@@ -52,7 +55,7 @@ function params = parameters()
     params.engine.thrustSea  = 500000; % [N] Sea-level thrust
     params.engine.thrustVac  = 500000; % [N] Sea-level thrust
     params.engine.numEngines = 5;     % number of main engines
-    p
+    
     % -----------------------
     % FINITE ELEMENT ANALYSIS (FEA)
     % -----------------------
@@ -76,5 +79,6 @@ function params = parameters()
     % -----------------------
     params.sim.timeStep   = 0.01;  % [s] time step
     params.sim.endTime    = 300;   % [s] total simulation time
+    params.sim.tspan = [0,300];
 
 end

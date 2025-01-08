@@ -17,7 +17,7 @@ function init_lv_gnc()
 %   4. The script will create any missing subfolders or placeholder files
 %      & update the README.md
 %
-% NOTE:
+% NOTE: bbbb
 %   - If you want a new top level folder (ie "orbits"), add it
 %     to the `subDirs` cell array first.
 %     Example: SubDirs ={'orbits'}
