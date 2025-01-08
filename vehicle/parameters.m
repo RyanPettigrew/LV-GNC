@@ -52,7 +52,7 @@ function params = parameters()
     params.engine.thrustSea  = 500000; % [N] Sea-level thrust
     params.engine.thrustVac  = 500000; % [N] Sea-level thrust
     params.engine.numEngines = 5;     % number of main engines
-    
+    p
     % -----------------------
     % FINITE ELEMENT ANALYSIS (FEA)
     % -----------------------
