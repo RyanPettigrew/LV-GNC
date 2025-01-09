@@ -1,0 +1,27 @@
+function guidanceCmds = guidance_law(t, state, params)
+    % current state    
+    r = state(1:3);
+    v = state(4:6);
+    mass = state(13);
+    current_coe = coe_from_sv(r, v, params.mu);
+  
+    % Target COE
+    target_coe = params.targetOrbit;
+    params.orbit_insert_alt = 1000; % set some alt
+    guidanceCmds = struct();
+    
+    % flight phase based on alt
+    r_mag = norm(r);
+    alt = r_mag - params.R_earth;
+    
+    if alt < params.gravity_turn_alt
+        % Phase 1: 
+        % guidanceCmds = ascentGuidance(r, v, params);
+    elseif alt <
+        % Phase 2: 
+        % guidanceCmds = guidance(current_coe, target_coe, r, v, params);
+    else
+        % Phase 3: % guidanceCmds = guidance();
+    end
+end
+

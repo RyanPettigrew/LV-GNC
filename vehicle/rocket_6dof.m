@@ -40,7 +40,7 @@ function dstate = eom6dof(t, state, params)
     
     windBody = [0; 0; 0];  % default is no wind
     % turn on wind
-    if isfield(params.sim, 'enableWind') && params.sim.enableWind
+    if isfield(params.simFlags, 'enableWind') && params.simFlags.enableWind
         windBody = [10; 0; 0];  
         % or add random disturbance wind model
     end
@@ -49,23 +49,27 @@ function dstate = eom6dof(t, state, params)
     %  thrustsimFlags.enableEngineModel 
     % -------------------------------------------------
     T = params.engine.thrustSea;
-    if isfield(params.sim, 'enableEngineModel') && params.sim.enableEngineModel
+    T_engine = [0;0;T]; % thrust is along the z-axis
+    if isfield(params.simFlags, 'enableEngineModel') && params.simFlags.enableEngineModel
         T = computeThrust(t, m, params);
+        % T_missAlignments = [0;0;0]; %I'll implement this later
     end
+
     % -------------------------------------------------
     % Aerodynamic forces & moments
     % -------------------------------------------------
     M_aero = [0; 0; 0];
     F_aero = [0; 0; 0];
-    if isfield(params.sim, 'enableAero') && params.sim.enableAero
+    if isfield(params.simFlags, 'enableAero') && params.simFlags.enableAero
         [F_aero, M_aero] = computeAero([vx; vy; vz], [p; q; r], phi, theta, psi, params);
     end
+
     % -------------------------------------------------
     % Slosh
     % -------------------------------------------------
     M_slosh = [0; 0; 0];
     F_slosh = [0; 0; 0];
-    if isfield(params.sim, 'enableSlosh') && params.sim.enableSlosh
+    if isfield(params.simFlags, 'enableSlosh') && params.simFlags.enableSlosh
         [F_slosh, M_slosh] = computeSloshMoment(t, state, params);
     end
 
@@ -75,7 +79,7 @@ function dstate = eom6dof(t, state, params)
     % -------------------------------------------------
     mdot = 0;
     % assumes constant mass unless mass flow rate is turned on 
-    if isfield(params.sim, 'enableMassFlow') && params.sim.enableMassFlow
+    if isfield(params.simFlags, 'enableMassFlow') && params.simFlags.enableMassFlow
         mdot = computeMassFlow(t, m, params);
     end
     
@@ -89,8 +93,8 @@ function dstate = eom6dof(t, state, params)
     % Translational eqs (inertial)
     % -------------------------------------------------
     % Body forces in inertial frame:
-    Fbody_b    = [T; 0; 0] + F_aero + F_slosh;    % net body-axis force
-    Fbody_i    = Cbi * Fbody_b;         % transform to inertial frame
+    Fbody_b    = T_engine + F_aero + F_slosh;     % net body-axis forces
+    Fbody_i    = Cbi * Fbody_b;                   % transform to inertial frame
 
     % Gravity in inertial frame
     W_i        = [0; 0; -m*g];

@@ -1,22 +1,26 @@
 function main_simulation()
+    % ==================================================
+    % MAIN ACCESS POINT TO RUN SIMULATIONS.
+    % USER HAS CONTROL OVER WHAT IS AND ISN'T SIMULATED.
+    % TURN ON/OFF MODELS AND SETTINGS FROM HERE.
+    % ==================================================
+
     clc; close all;
     % -----------------------------
     % Simulation flags
     % -----------------------------
-    simFlags.enableSlosh    = false;   % Turn off all models
-    simFlags.enableMassFlow = false;  
-    simFlags.enableWind     = false;  
-    simFlags.enableDrag     = false;   
-    simFlags.enableAero     = false;  
-    simFlags.enableEngineModel = false;  
+    simFlags.enableSlosh        = false; %set all flags to false for now
+    simFlags.enableMassFlow     = false;  
+    simFlags.enableWind         = false;  
+    simFlags.enableDrag         = false;   
+    simFlags.enableAero         = false;  
+    simFlags.enableEngineModel  = false;  
 
     % -----------------------------
-    % Load vehicle parameters
+    % Load ALL Parameters & Set Simulation Flags
     % -----------------------------
-    addpath('../vehicle');
-    addpath('Plots\');
-    params = parameters();
-    params.sim = simFlags;       % embed toggles in params.sim
+    addpath('../Parameters/');
+    params = loadAllParameters(simFlags);
 
     % -----------------------------
     % Initial Vehicle State Vector
@@ -45,7 +49,7 @@ function main_simulation()
     % -----------------------------
     [t, stateOut] = rocket_6dof(tspan, state0, params);
     
-    % plots
+    % Plots
     addSimulationPlots(t, stateOut)
 
 end

@@ -1,4 +1,4 @@
-function params = parameters()
+function params = vehicleParameters()
 % =============================================================
 % -------------------- VEHICLE PARAMETERS ---------------------
 % =============================================================
@@ -71,9 +71,11 @@ function params = parameters()
     % -----------------------
     % ENVIRONMENTAL CONSTANTS
     % -----------------------
-    params.env.g    = 9.81;  % only use below some altitude
-    params.env.stdAtmModel  = 'standardAtmosphere';
-
+    params.env.g    = 9.81;
+    params.env.rEarth = 6371e3; % mean earth radius [m]
+    params.env.muEarth = 3.986e14; %earth grav. param [m3/s2]
+    params.env.densitySea = 101325; %sea lvl pressure [pa]
+    
     % -----------------------
     % SIMULATION PARAMS
     % -----------------------
