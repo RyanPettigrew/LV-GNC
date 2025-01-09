@@ -1,7 +1,8 @@
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   function coe = coe_from_sv(R,V,mu)
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-%{
+% Code from Curtis Orbits textbook
+%{ 
 % This function computes the classical orbital elements (coe)
 % from the state vector (R,V) using Algorithm 4.1.
 %
