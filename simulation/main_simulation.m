@@ -15,8 +15,7 @@ function main_simulation()
     simFlags.enableDrag         = false;   
     simFlags.enableAero         = false;  
     simFlags.enableEngineModel  = false;  
-    simFlags.enableEngineModel  = true;
-    simFlags.enableEngineModel  = false;
+    
     % -----------------------------
     % Load ALL Parameters & Set Simulation Flags
     % -----------------------------
