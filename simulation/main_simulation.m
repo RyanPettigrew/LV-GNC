@@ -13,9 +13,11 @@ function main_simulation()
     simFlags.enableMassFlow     = false;  
     simFlags.enableWind         = false;  
     simFlags.enableDrag         = false;   
+    
+    % meow
     simFlags.enableAero         = false;  
     simFlags.enableEngineModel  = false;  
-
+    
     % -----------------------------
     % Load ALL Parameters & Set Simulation Flags
     % -----------------------------
